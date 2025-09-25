@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useConversation } from "@11labs/react";
+import { useConversation } from "@elevenlabs/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -33,11 +33,11 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
         onConversationEnd(currentConversationId);
       }
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
         variant: "destructive",
         title: "Connection Error",
-        description: error.message || "Failed to connect to voice agent.",
+        description: typeof error === 'string' ? error : (error?.message || "Failed to connect to voice agent."),
       });
     },
   });
@@ -72,7 +72,7 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
     }
 
     try {
-      // Generate signed URL (in a real app, this should be done on your backend)
+      // Generate signed URL for authentication
       const response = await fetch(
         `https://api.elevenlabs.io/v1/convai/conversation/get_signed_url?agent_id=${agentId}`,
         {
@@ -88,7 +88,7 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
       }
 
       const body = await response.json();
-      const conversationId = await conversation.startSession({ url: body.signed_url });
+      const conversationId = await conversation.startSession({ signedUrl: body.signed_url });
       setCurrentConversationId(conversationId);
     } catch (error) {
       toast({
