@@ -79,18 +79,13 @@ const Connection: React.FC<{ from: [number, number, number]; to: [number, number
     new THREE.Vector3(...to)
   ], [from, to]);
 
+  const lineGeometry = useMemo(() => {
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    return geometry;
+  }, [points]);
+
   return (
-    <line>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={points.length}
-          array={new Float32Array(points.flatMap(p => [p.x, p.y, p.z]))}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <lineBasicMaterial color="#4a5568" opacity={0.6} transparent />
-    </line>
+    <primitive object={new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({ color: '#64748b', opacity: 0.6, transparent: true }))} />
   );
 };
 
