@@ -3,18 +3,21 @@ import { useConversation } from "@elevenlabs/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Mic, MicOff, Phone, PhoneOff, Compass } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+
+// Hardcoded credentials - replace with your actual values
+const AGENT_ID = "your-agent-id-here";
+const API_KEY = "your-api-key-here";
 
 interface VoiceConversationProps {
   onConversationEnd?: (conversationId: string) => void;
 }
 
 const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
-  const [agentId, setAgentId] = useState("");
-  const [apiKey, setApiKey] = useState("");
-  const [isSetup, setIsSetup] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isForwarding, setIsForwarding] = useState(false);
   const { toast } = useToast();
@@ -50,28 +53,31 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
   const { status, isSpeaking } = conversation;
 
   useEffect(() => {
-    // Request microphone access on component mount
-    const requestMicAccess = async () => {
+    // Request microphone access and simulate loading
+    const initialize = async () => {
       try {
         await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Simulate loading time
+        setTimeout(() => setIsLoading(false), 2000);
       } catch (error) {
         toast({
           variant: "destructive",
           title: "Microphone Access Required",
           description: "Please allow microphone access to use voice features.",
         });
+        setIsLoading(false);
       }
     };
 
-    requestMicAccess();
+    initialize();
   }, [toast]);
 
   const handleStartConversation = async () => {
-    if (!agentId || !apiKey) {
+    if (!AGENT_ID || !API_KEY) {
       toast({
         variant: "destructive",
-        title: "Setup Required",
-        description: "Please provide both Agent ID and API Key.",
+        title: "Configuration Error",
+        description: "Agent ID and API Key must be configured.",
       });
       return;
     }
@@ -79,11 +85,11 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
     try {
       // Generate signed URL for authentication
       const response = await fetch(
-        `https://api.elevenlabs.io/v1/convai/conversation/get_signed_url?agent_id=${agentId}`,
+        `https://api.elevenlabs.io/v1/convai/conversation/get_signed_url?agent_id=${AGENT_ID}`,
         {
           method: "GET",
           headers: {
-            "xi-api-key": apiKey,
+            "xi-api-key": API_KEY,
           },
         }
       );
@@ -153,7 +159,7 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
     }
   };
 
-  if (!isSetup) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
         <div className="absolute top-4 right-4">
@@ -164,46 +170,25 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
             </Button>
           </Link>
         </div>
-        <Card className="w-full max-w-md p-6 bg-gradient-voice border-0 shadow-voice">
-          <div className="space-y-6">
-            <div className="text-center">
-              <h1 className="text-2xl font-bold mb-2">Voice Agent Setup</h1>
-              <p className="text-muted-foreground">
-                Configure your ElevenLabs voice agent to get started
+        <Card className="w-full max-w-md p-8 bg-gradient-voice border-0 shadow-voice">
+          <div className="text-center space-y-6">
+            <div>
+              <h1 className="text-2xl font-bold mb-4">Loading Voice Agent</h1>
+              <p className="text-muted-foreground mb-6">
+                Initializing your voice conversation experience...
               </p>
             </div>
 
             <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">Agent ID</label>
-                <input
-                  type="text"
-                  value={agentId}
-                  onChange={(e) => setAgentId(e.target.value)}
-                  placeholder="Enter your ElevenLabs Agent ID"
-                  className="w-full px-3 py-2 bg-background/50 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-voice-primary"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-2 block">API Key</label>
-                <input
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder="Enter your ElevenLabs API Key"
-                  className="w-full px-3 py-2 bg-background/50 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-voice-primary"
-                />
-              </div>
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-4 w-3/4 mx-auto" />
+              <Skeleton className="h-4 w-1/2 mx-auto" />
             </div>
 
-            <Button
-              onClick={() => setIsSetup(true)}
-              disabled={!agentId || !apiKey}
-              className="w-full bg-voice-primary hover:bg-voice-secondary transition-all duration-300"
-            >
-              Start Voice Agent
-            </Button>
+            <div className="flex items-center justify-center gap-2 text-muted-foreground">
+              <div className="w-4 h-4 border-2 border-voice-primary border-t-transparent rounded-full animate-spin" />
+              <span>Setting up...</span>
+            </div>
           </div>
         </Card>
       </div>
@@ -306,16 +291,6 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
               <span>Forwarding conversation...</span>
             </div>
           )}
-
-          {/* Settings */}
-          <Button
-            onClick={() => setIsSetup(false)}
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            Change Settings
-          </Button>
         </div>
       </Card>
     </div>
