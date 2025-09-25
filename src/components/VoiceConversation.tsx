@@ -112,6 +112,13 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
 
   const handleEndConversation = async () => {
     try {
+      // Forward conversation ID before ending
+      if (currentConversationId) {
+        await handleAPIForward(currentConversationId);
+        if (onConversationEnd) {
+          onConversationEnd(currentConversationId);
+        }
+      }
       await conversation.endSession();
       setCurrentConversationId(null);
     } catch (error) {
