@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useConversation } from "@elevenlabs/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -20,7 +20,6 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isForwarding, setIsForwarding] = useState(false);
-  const conversationIdRef = useRef<string | null>(null);
   const { toast } = useToast();
 
   const conversation = useConversation({
@@ -35,10 +34,10 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
         title: "Disconnected",
         description: "Voice conversation ended.",
       });
-      if (conversationIdRef.current) {
-        handleAPIForward(conversationIdRef.current);
+      if (currentConversationId) {
+        handleAPIForward(currentConversationId);
         if (onConversationEnd) {
-          onConversationEnd(conversationIdRef.current);
+          onConversationEnd(currentConversationId);
         }
       }
     },
@@ -102,7 +101,6 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
       const body = await response.json();
       const conversationId = await conversation.startSession({ signedUrl: body.signed_url });
       setCurrentConversationId(conversationId);
-      conversationIdRef.current = conversationId;
     } catch (error) {
       toast({
         variant: "destructive",
@@ -114,16 +112,8 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
 
   const handleEndConversation = async () => {
     try {
-      // Forward conversation ID before ending
-      if (currentConversationId) {
-        await handleAPIForward(currentConversationId);
-        if (onConversationEnd) {
-          onConversationEnd(currentConversationId);
-        }
-      }
       await conversation.endSession();
       setCurrentConversationId(null);
-      conversationIdRef.current = null;
     } catch (error) {
       toast({
         variant: "destructive",
