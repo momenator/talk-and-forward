@@ -98,6 +98,23 @@ All colors MUST be HSL.
     --accent: 240 6% 10%;
     --accent-foreground: 0 0% 98%;
 
+    /* Voice app specific colors */
+    --voice-primary: 262 83% 58%;
+    --voice-secondary: 221 83% 53%;
+    --voice-accent: 283 100% 69%;
+    --voice-success: 142 76% 36%;
+    --voice-warning: 45 93% 47%;
+    --voice-danger: 0 84% 60%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(221 83% 53%));
+    --gradient-voice: linear-gradient(135deg, hsl(262 83% 58%), hsl(283 100% 69%));
+    --gradient-subtle: linear-gradient(135deg, hsl(240 8% 5%), hsl(240 6% 10%));
+    
+    /* Shadows */
+    --shadow-voice: 0 10px 30px -10px hsl(262 83% 58% / 0.3);
+    --shadow-glow: 0 0 40px hsl(262 83% 58% / 0.4);
+
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
