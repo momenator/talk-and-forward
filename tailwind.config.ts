@@ -47,6 +47,14 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        voice: {
+          primary: "hsl(var(--voice-primary))",
+          secondary: "hsl(var(--voice-secondary))",
+          accent: "hsl(var(--voice-accent))",
+          success: "hsl(var(--voice-success))",
+          warning: "hsl(var(--voice-warning))",
+          danger: "hsl(var(--voice-danger))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -62,6 +70,18 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      backgroundImage: {
+        'gradient-primary': 'var(--gradient-primary)',
+        'gradient-voice': 'var(--gradient-voice)',
+        'gradient-subtle': 'var(--gradient-subtle)',
+      },
+      boxShadow: {
+        'voice': 'var(--shadow-voice)',
+        'glow': 'var(--shadow-glow)',
+      },
+      transitionTimingFunction: {
+        'bounce-gentle': 'var(--bounce-gentle)',
       },
       keyframes: {
         "accordion-down": {

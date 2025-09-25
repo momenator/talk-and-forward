@@ -1,12 +1,23 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import VoiceConversation from "@/components/VoiceConversation";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
+  const { toast } = useToast();
+
+  const handleConversationEnd = async (conversationId: string) => {
+    console.log("Conversation ended with ID:", conversationId);
+    
+    // You can customize this API call to forward the conversation ID
+    // to your preferred endpoint
+    toast({
+      title: "Conversation Completed",
+      description: `Ready to forward conversation ID: ${conversationId.slice(0, 8)}...`,
+    });
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen">
+      <VoiceConversation onConversationEnd={handleConversationEnd} />
     </div>
   );
 };
