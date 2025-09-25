@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,12 +10,21 @@ interface ExploreItem {
   id: string;
   type: 'community' | 'person' | 'event';
   data: any;
+  x: number;
+  y: number;
 }
 
 const Explore = () => {
   const [items, setItems] = useState<ExploreItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [viewportOffset, setViewportOffset] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [momentum, setMomentum] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+  const lastMousePos = useRef({ x: 0, y: 0 });
+  const animationRef = useRef<number>();
 
   // Sample data
   const communities = [
@@ -148,6 +157,15 @@ const Explore = () => {
     }
   ];
 
+  const generateRandomPosition = (index: number) => {
+    // Create a spiral pattern with some randomness
+    const angle = index * 0.5;
+    const radius = Math.sqrt(index) * 200;
+    const x = Math.cos(angle) * radius + (Math.random() - 0.5) * 300;
+    const y = Math.sin(angle) * radius + (Math.random() - 0.5) * 300;
+    return { x, y };
+  };
+
   const loadMoreItems = useCallback(() => {
     if (loading || !hasMore) return;
     
@@ -156,14 +174,15 @@ const Explore = () => {
     // Simulate API call
     setTimeout(() => {
       const newItems: ExploreItem[] = [];
-      const startIndex = Math.floor(items.length / 3);
+      const startIndex = items.length;
       
       // Mix different types of content
       const itemTypes = ['community', 'person', 'event'] as const;
       
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 12; i++) {
         const typeIndex = (startIndex + i) % 3;
         const type = itemTypes[typeIndex];
+        const position = generateRandomPosition(startIndex + i);
         
         let data;
         let id;
@@ -186,14 +205,14 @@ const Explore = () => {
             break;
         }
         
-        newItems.push({ id, type, data });
+        newItems.push({ id, type, data, x: position.x, y: position.y });
       }
       
       setItems(prev => [...prev, ...newItems]);
       setLoading(false);
       
-      // Stop loading after 50 items for demo
-      if (items.length + newItems.length > 50) {
+      // Stop loading after 100 items for demo
+      if (items.length + newItems.length > 100) {
         setHasMore(false);
       }
     }, 800);
@@ -204,17 +223,173 @@ const Explore = () => {
     loadMoreItems();
   }, []);
 
-  // Infinite scroll
+  // Load more items when near edge of visible area
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 1000) {
+    const checkLoadMore = () => {
+      if (!hasMore || loading) return;
+      
+      const viewportBounds = {
+        left: -viewportOffset.x - 1000,
+        right: -viewportOffset.x + window.innerWidth + 1000,
+        top: -viewportOffset.y - 1000,
+        bottom: -viewportOffset.y + window.innerHeight + 1000
+      };
+      
+      const visibleItems = items.filter(item => 
+        item.x > viewportBounds.left &&
+        item.x < viewportBounds.right &&
+        item.y > viewportBounds.top &&
+        item.y < viewportBounds.bottom
+      );
+      
+      if (visibleItems.length < 20) {
         loadMoreItems();
       }
     };
+    
+    checkLoadMore();
+  }, [viewportOffset, items, hasMore, loading, loadMoreItems]);
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [loadMoreItems]);
+  // Mouse/touch drag controls
+  useEffect(() => {
+    const handleMouseDown = (e: MouseEvent) => {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX, y: e.clientY });
+      lastMousePos.current = { x: e.clientX, y: e.clientY };
+      setMomentum({ x: 0, y: 0 });
+      
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      
+      const deltaX = e.clientX - lastMousePos.current.x;
+      const deltaY = e.clientY - lastMousePos.current.y;
+      
+      setViewportOffset(prev => ({
+        x: prev.x + deltaX,
+        y: prev.y + deltaY
+      }));
+      
+      setMomentum({ x: deltaX, y: deltaY });
+      lastMousePos.current = { x: e.clientX, y: e.clientY };
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      
+      // Apply momentum
+      const applyMomentum = () => {
+        setMomentum(prev => {
+          const friction = 0.95;
+          const newMomentum = {
+            x: prev.x * friction,
+            y: prev.y * friction
+          };
+          
+          if (Math.abs(newMomentum.x) > 0.1 || Math.abs(newMomentum.y) > 0.1) {
+            setViewportOffset(offset => ({
+              x: offset.x + newMomentum.x,
+              y: offset.y + newMomentum.y
+            }));
+            
+            animationRef.current = requestAnimationFrame(applyMomentum);
+          }
+          
+          return newMomentum;
+        });
+      };
+      
+      if (Math.abs(momentum.x) > 1 || Math.abs(momentum.y) > 1) {
+        applyMomentum();
+      }
+    };
+
+    // Touch events
+    const handleTouchStart = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      setIsDragging(true);
+      setDragStart({ x: touch.clientX, y: touch.clientY });
+      lastMousePos.current = { x: touch.clientX, y: touch.clientY };
+      setMomentum({ x: 0, y: 0 });
+      
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - lastMousePos.current.x;
+      const deltaY = touch.clientY - lastMousePos.current.y;
+      
+      setViewportOffset(prev => ({
+        x: prev.x + deltaX,
+        y: prev.y + deltaY
+      }));
+      
+      setMomentum({ x: deltaX, y: deltaY });
+      lastMousePos.current = { x: touch.clientX, y: touch.clientY };
+    };
+
+    const handleTouchEnd = () => {
+      handleMouseUp();
+    };
+
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('touchstart', handleTouchStart, { passive: false });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+      
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [isDragging, momentum]);
+
+  // Zoom with mouse wheel
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      
+      const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+      const mouseX = e.clientX;
+      const mouseY = e.clientY;
+      
+      // Zoom towards mouse position
+      setViewportOffset(prev => ({
+        x: mouseX - (mouseX - prev.x) * zoomFactor,
+        y: mouseY - (mouseY - prev.y) * zoomFactor
+      }));
+    };
+    
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('wheel', handleWheel, { passive: false });
+    }
+    
+    return () => {
+      if (container) {
+        container.removeEventListener('wheel', handleWheel);
+      }
+    };
+  }, []);
 
   const renderCommunityCard = (community: any) => (
     <Card className="group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-[hsl(var(--voice-primary))]/30 break-inside-avoid mb-4">
@@ -362,31 +537,69 @@ const Explore = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-6 py-8">
-        <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-0">
+      <main 
+        ref={containerRef}
+        className="relative h-[calc(100vh-80px)] overflow-hidden cursor-grab active:cursor-grabbing"
+        style={{ userSelect: 'none' }}
+      >
+        <div 
+          className="absolute inset-0"
+          style={{
+            transform: `translate(${viewportOffset.x}px, ${viewportOffset.y}px)`,
+            transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+          }}
+        >
           {items.map((item) => (
-            <div key={item.id}>
+            <div 
+              key={item.id}
+              className="absolute"
+              style={{
+                left: `${item.x}px`,
+                top: `${item.y}px`,
+                width: '300px',
+                pointerEvents: 'auto'
+              }}
+            >
               {item.type === 'community' && renderCommunityCard(item.data)}
               {item.type === 'person' && renderPersonCard(item.data)}
               {item.type === 'event' && renderEventCard(item.data)}
             </div>
           ))}
+          
+          {/* Center indicator */}
+          <div 
+            className="absolute w-2 h-2 bg-[hsl(var(--voice-primary))] rounded-full opacity-30"
+            style={{ left: '-4px', top: '-4px' }}
+          />
         </div>
 
         {loading && (
-          <div className="flex justify-center py-8">
-            <div className="flex items-center gap-2 text-muted-foreground">
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 pointer-events-none">
+            <div className="flex items-center gap-2 text-muted-foreground bg-card/80 backdrop-blur-sm px-4 py-2 rounded-full border border-border/50">
               <Loader2 className="h-4 w-4 animate-spin" />
               Loading more content...
             </div>
           </div>
         )}
 
-        {!hasMore && items.length > 0 && (
-          <div className="text-center py-8 text-muted-foreground">
-            You've reached the end of the feed
+        {/* Navigation hint */}
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 pointer-events-none">
+          <div className="text-sm text-muted-foreground bg-card/80 backdrop-blur-sm px-4 py-2 rounded-full border border-border/50">
+            Drag to explore • Scroll to zoom
           </div>
-        )}
+        </div>
+
+        {/* Reset button */}
+        <div className="absolute top-4 right-4">
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="bg-card/80 backdrop-blur-sm border-border/50"
+            onClick={() => setViewportOffset({ x: 0, y: 0 })}
+          >
+            Reset View
+          </Button>
+        </div>
       </main>
     </div>
   );
