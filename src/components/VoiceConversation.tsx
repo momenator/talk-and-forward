@@ -16,6 +16,7 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
   const [apiKey, setApiKey] = useState("");
   const [isSetup, setIsSetup] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const [isForwarding, setIsForwarding] = useState(false);
   const { toast } = useToast();
 
   const conversation = useConversation({
@@ -30,8 +31,11 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
         title: "Disconnected",
         description: "Voice conversation ended.",
       });
-      if (currentConversationId && onConversationEnd) {
-        onConversationEnd(currentConversationId);
+      if (currentConversationId) {
+        handleAPIForward(currentConversationId);
+        if (onConversationEnd) {
+          onConversationEnd(currentConversationId);
+        }
       }
     },
     onError: (error: any) => {
@@ -113,9 +117,10 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
     }
   };
 
-  const handleAPIForward = async () => {
-    if (!currentConversationId) return;
+  const handleAPIForward = async (conversationId: string) => {
+    if (!conversationId) return;
 
+    setIsForwarding(true);
     try {
       // Replace with your actual API endpoint
       const response = await fetch("/api/forward-conversation", {
@@ -124,7 +129,7 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          conversationId: currentConversationId,
+          conversationId: conversationId,
           timestamp: new Date().toISOString(),
         }),
       });
@@ -143,6 +148,8 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
         title: "Forward Failed",
         description: "Failed to forward conversation ID to API.",
       });
+    } finally {
+      setIsForwarding(false);
     }
   };
 
@@ -292,15 +299,12 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
             )}
           </div>
 
-          {/* Forward conversation ID button */}
-          {currentConversationId && status === "disconnected" && (
-            <Button
-              onClick={handleAPIForward}
-              variant="outline"
-              className="w-full"
-            >
-              Forward Conversation ID
-            </Button>
+          {/* Loading indicator during forwarding */}
+          {isForwarding && (
+            <div className="flex items-center justify-center gap-2 text-muted-foreground">
+              <div className="w-4 h-4 border-2 border-voice-primary border-t-transparent rounded-full animate-spin" />
+              <span>Forwarding conversation...</span>
+            </div>
           )}
 
           {/* Settings */}
