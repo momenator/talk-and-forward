@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Discovery from "./pages/Discovery";
 import Explore from "./pages/Explore";
 import Graph from "./pages/Graph";
+import Graph2D from "./pages/Graph2D";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/discovery" element={<Discovery />} />
           <Route path="/explore" element={<Explore />} />
           <Route path="/graph" element={<Graph />} />
+          <Route path="/graph-2d" element={<Graph2D />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -32,6 +32,9 @@ const Index = () => {
             <Button asChild variant="outline">
               <Link to="/graph">3D Graph</Link>
             </Button>
+            <Button asChild variant="outline">
+              <Link to="/graph-2d">2D Graph</Link>
+            </Button>
           </div>
         </div>
       </div>
