@@ -9,8 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 
 // Hardcoded credentials - replace with your actual values
-const AGENT_ID = "your-agent-id-here";
-const API_KEY = "your-api-key-here";
+const AGENT_ID = "agent_6301k60qg6eze6trytb2te6nqxyc";
+const API_KEY = "sk_3b62b8cc43c1a123b8a0512d4f79721209c2939d2fac1ab7";
 
 interface VoiceConversationProps {
   onConversationEnd?: (conversationId: string) => void;
