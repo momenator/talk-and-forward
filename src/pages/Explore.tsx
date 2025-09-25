@@ -157,13 +157,55 @@ const Explore = () => {
     }
   ];
 
-  const generateRandomPosition = (index: number) => {
-    // Create a spiral pattern with some randomness
-    const angle = index * 0.5;
-    const radius = Math.sqrt(index) * 200;
-    const x = Math.cos(angle) * radius + (Math.random() - 0.5) * 300;
-    const y = Math.sin(angle) * radius + (Math.random() - 0.5) * 300;
-    return { x, y };
+  const CARD_WIDTH = 300;
+  const CARD_HEIGHT = 200; // Approximate average card height
+  const MIN_SPACING = 20;
+
+  const checkCollision = (newPos: { x: number; y: number }, existingItems: ExploreItem[]) => {
+    for (const item of existingItems) {
+      const dx = Math.abs(newPos.x - item.x);
+      const dy = Math.abs(newPos.y - item.y);
+      
+      if (dx < CARD_WIDTH + MIN_SPACING && dy < CARD_HEIGHT + MIN_SPACING) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const generateNonOverlappingPosition = (index: number, existingItems: ExploreItem[]) => {
+    const maxAttempts = 50;
+    let attempts = 0;
+    
+    while (attempts < maxAttempts) {
+      // Create a spiral pattern with randomness
+      const spiralIndex = index + attempts * 0.1;
+      const angle = spiralIndex * 0.8;
+      const radius = Math.sqrt(spiralIndex) * 180;
+      
+      const baseX = Math.cos(angle) * radius;
+      const baseY = Math.sin(angle) * radius;
+      
+      // Add some randomness but less than before
+      const randomOffset = 150 - (attempts * 3); // Reduce randomness with each attempt
+      const x = baseX + (Math.random() - 0.5) * randomOffset;
+      const y = baseY + (Math.random() - 0.5) * randomOffset;
+      
+      const newPos = { x, y };
+      
+      if (!checkCollision(newPos, existingItems)) {
+        return newPos;
+      }
+      
+      attempts++;
+    }
+    
+    // Fallback: place in a grid if no non-overlapping position found
+    const gridSize = Math.sqrt(existingItems.length + 1);
+    const gridX = (index % gridSize) * (CARD_WIDTH + MIN_SPACING);
+    const gridY = Math.floor(index / gridSize) * (CARD_HEIGHT + MIN_SPACING);
+    
+    return { x: gridX, y: gridY };
   };
 
   const loadMoreItems = useCallback(() => {
@@ -182,7 +224,7 @@ const Explore = () => {
       for (let i = 0; i < 12; i++) {
         const typeIndex = (startIndex + i) % 3;
         const type = itemTypes[typeIndex];
-        const position = generateRandomPosition(startIndex + i);
+        const position = generateNonOverlappingPosition(startIndex + i, [...items, ...newItems]);
         
         let data;
         let id;
