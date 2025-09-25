@@ -4,9 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Mic, MicOff, Phone, PhoneOff, Compass } from "lucide-react";
+import { Mic, MicOff, Phone, PhoneOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "react-router-dom";
 
 // Hardcoded credentials - replace with your actual values
 const AGENT_ID = "test";
@@ -162,14 +161,6 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
-        <div className="absolute top-4 right-4">
-          <Link to="/discovery">
-            <Button variant="outline" size="sm" className="gap-2 hover:bg-[hsl(var(--voice-primary))]/10">
-              <Compass className="h-4 w-4" />
-              Discover
-            </Button>
-          </Link>
-        </div>
         <Card className="w-full max-w-md p-8 bg-gradient-voice border-0 shadow-voice">
           <div className="text-center space-y-6">
             <div>
@@ -197,14 +188,6 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
-      <div className="absolute top-4 right-4">
-        <Link to="/discovery">
-          <Button variant="outline" size="sm" className="gap-2 hover:bg-[hsl(var(--voice-primary))]/10">
-            <Compass className="h-4 w-4" />
-            Discover
-          </Button>
-        </Link>
-      </div>
       <Card className="w-full max-w-lg p-8 bg-gradient-voice border-0 shadow-voice">
         <div className="text-center space-y-6">
           <div>
