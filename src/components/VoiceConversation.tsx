@@ -3,8 +3,9 @@ import { useConversation } from "@elevenlabs/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Mic, MicOff, Phone, PhoneOff } from "lucide-react";
+import { Mic, MicOff, Phone, PhoneOff, Compass } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 interface VoiceConversationProps {
   onConversationEnd?: (conversationId: string) => void;
@@ -148,6 +149,14 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
   if (!isSetup) {
     return (
       <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
+        <div className="absolute top-4 right-4">
+          <Link to="/discovery">
+            <Button variant="outline" size="sm" className="gap-2 hover:bg-[hsl(var(--voice-primary))]/10">
+              <Compass className="h-4 w-4" />
+              Discover
+            </Button>
+          </Link>
+        </div>
         <Card className="w-full max-w-md p-6 bg-gradient-voice border-0 shadow-voice">
           <div className="space-y-6">
             <div className="text-center">
@@ -196,6 +205,14 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
+      <div className="absolute top-4 right-4">
+        <Link to="/discovery">
+          <Button variant="outline" size="sm" className="gap-2 hover:bg-[hsl(var(--voice-primary))]/10">
+            <Compass className="h-4 w-4" />
+            Discover
+          </Button>
+        </Link>
+      </div>
       <Card className="w-full max-w-lg p-8 bg-gradient-voice border-0 shadow-voice">
         <div className="text-center space-y-6">
           <div>
