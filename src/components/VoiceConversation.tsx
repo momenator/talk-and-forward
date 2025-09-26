@@ -132,6 +132,9 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
         method: "GET",
       });
 
+      const responseData = await response.text();
+      console.log("API Response:", responseData);
+
       if (response.ok) {
         toast({
           title: "Success",
