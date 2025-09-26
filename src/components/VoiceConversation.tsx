@@ -127,8 +127,8 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
 
     setIsForwarding(true);
     try {
-      // Replace with your actual API endpoint
-      const response = await fetch(`/api/forward-conversation?conversationId=${conversationId}`, {
+      // Update this to your FastAPI server URL
+      const response = await fetch(`http://localhost:8000/api/forward-conversation?conversationId=${conversationId}`, {
         method: "GET",
       });
 
