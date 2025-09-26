@@ -276,24 +276,10 @@ const Discovery = () => {
                 
                 <div className="space-y-6">
                   <div className="space-y-4">
-                    <p className="text-muted-foreground">{item.description}</p>
+                    <p className="text-white">{item.description}</p>
+                    <p className="text-muted-foreground">{item.reason}</p>
                     <div className="flex items-center gap-2 mb-4">
                       <Badge variant="outline">{item.category}</Badge>
-                    </div>
-                    
-                    <div className="bg-gradient-voice/15 rounded-lg p-4 border-2 border-voice-primary/30 shadow-inner">
-                      <div className="flex items-start gap-3">
-                        <div className="w-1.5 h-8 bg-voice-primary rounded-full flex-shrink-0 mt-1" />
-                        <div>
-                          <h4 className="font-bold text-voice-primary mb-3 flex items-center gap-2 text-lg">
-                            <MessageCircle className="h-5 w-5" />
-                            Why This Matters
-                          </h4>
-                          <p className="text-base leading-relaxed font-medium text-foreground/90">
-                            {item.reason}
-                          </p>
-                        </div>
-                      </div>
                     </div>
                   </div>
                   
