@@ -17,10 +17,20 @@ interface DiscoveryItem {
   image?: string;
 }
 
+interface EventItem {
+  id?: number;
+  event_name: string;
+  datetime: string;
+  location: string;
+  description: string;
+}
+
 const Discovery = () => {
   const [favorites, setFavorites] = useState<number[]>([]);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [items, setItems] = useState<DiscoveryItem[]>([]);
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [isLoadingEvents, setIsLoadingEvents] = useState(false);
   const location = useLocation();
 
   const dummyItems = [
@@ -94,29 +104,36 @@ const Discovery = () => {
     }
   }, [location.state]);
 
-  const nearbyEvents = [
-    {
-      id: 1,
-      title: "Voice AI Meetup",
-      date: "Apr 5, 2024",
-      location: "San Francisco, CA",
-      attendees: 80
-    },
-    {
-      id: 2,
-      title: "AI Ethics Panel",
-      date: "Apr 12, 2024",
-      location: "Virtual",
-      attendees: 200
-    },
-    {
-      id: 3,
-      title: "Tech Innovation Conference",
-      date: "Apr 18, 2024",
-      location: "New York, NY",
-      attendees: 350
+  const fetchEvents = async (groupName: string) => {
+    setIsLoadingEvents(true);
+    try {
+      const response = await fetch(`http://localhost:5555/events?name=${encodeURIComponent(groupName)}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.results && Array.isArray(data.results)) {
+          const formattedEvents = data.results.map((event: any, index: number) => ({
+            id: index + 1,
+            event_name: event.event_name || "Unknown Event",
+            datetime: event.datetime || "TBD", 
+            location: event.location || "TBD",
+            description: event.description || "No description available"
+          }));
+          setEvents(formattedEvents);
+        } else {
+          setEvents([]);
+        }
+      } else {
+        console.error("Failed to fetch events");
+        setEvents([]);
+      }
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      setEvents([]);
+    } finally {
+      setIsLoadingEvents(false);
     }
-  ];
+  };
 
   const toggleFavorite = (itemId: number) => {
     setFavorites(prev => 
@@ -152,7 +169,11 @@ const Discovery = () => {
       <main className="container mx-auto px-6 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {items.map((item) => (
-            <Dialog key={item.id}>
+            <Dialog key={item.id} onOpenChange={(open) => {
+              if (open) {
+                fetchEvents(item.name);
+              }
+            }}>
               <DialogTrigger asChild>
                 <Card className="group hover:shadow-voice transition-all duration-300 border-2 border-voice-primary/20 hover:border-voice-primary/50 cursor-pointer overflow-hidden bg-card/80 backdrop-blur-sm shadow-glow/20 relative">
                   {/* Star button in top-right corner */}
@@ -274,38 +295,57 @@ const Discovery = () => {
                     </div>
                   </div>
                   
-                  <div>
-                    <h4 className="font-semibold mb-3 flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      Nearby Events
-                    </h4>
-                    <div className="space-y-3">
-                      {nearbyEvents.map((event) => (
-                        <div key={event.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
-                          <div>
-                            <h5 className="font-medium text-sm">{event.title}</h5>
-                            <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
-                              <span className="flex items-center gap-1">
-                                <Calendar className="h-3 w-3" />
-                                {event.date}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <MapPin className="h-3 w-3" />
-                                {event.location}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Users className="h-3 w-3" />
-                                {event.attendees}
-                              </span>
-                            </div>
-                          </div>
-                          <Button size="sm" variant="outline">
-                            View
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                   <div>
+                     <h4 className="font-semibold mb-3 flex items-center gap-2">
+                       <Calendar className="h-4 w-4" />
+                       Related Events
+                     </h4>
+                     {isLoadingEvents ? (
+                       <div className="space-y-3">
+                         {[1, 2, 3].map((i) => (
+                           <div key={i} className="p-3 border border-border rounded-lg">
+                             <div className="space-y-2">
+                               <div className="h-4 bg-muted rounded animate-pulse" />
+                               <div className="h-3 bg-muted rounded w-3/4 animate-pulse" />
+                             </div>
+                           </div>
+                         ))}
+                       </div>
+                     ) : events.length > 0 ? (
+                       <div className="space-y-3">
+                         {events.map((event) => (
+                           <div key={event.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
+                             <div>
+                               <h5 className="font-medium text-sm">{event.event_name}</h5>
+                               <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
+                                 <span className="flex items-center gap-1">
+                                   <Calendar className="h-3 w-3" />
+                                   {event.datetime}
+                                 </span>
+                                 <span className="flex items-center gap-1">
+                                   <MapPin className="h-3 w-3" />
+                                   {event.location}
+                                 </span>
+                               </div>
+                               {event.description && (
+                                 <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                   {event.description}
+                                 </p>
+                               )}
+                             </div>
+                             <Button size="sm" variant="outline">
+                               View
+                             </Button>
+                           </div>
+                         ))}
+                       </div>
+                     ) : (
+                       <div className="text-center py-6 text-muted-foreground">
+                         <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                         <p className="text-sm">No events found for this group</p>
+                       </div>
+                     )}
+                   </div>
                 </div>
               </DialogContent>
             </Dialog>
