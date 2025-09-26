@@ -126,11 +126,10 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
 
   const handleAPIForward = async (conversationId: string) => {
     if (!conversationId) return;
-
     setIsForwarding(true);
-    try {
+      try {
       // Update this to your FastAPI server URL
-      const response = await fetch(`http://localhost:8000/api/forward-conversation?conversationId=${conversationId}`, {
+        const response = await fetch(`http://localhost:5555/conversation-id?conversationId=${conversationId}`, {
         method: "GET",
       });
 
@@ -144,7 +143,7 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
             title: "Success",
             description: "Results found! Redirecting to Discovery...",
           });
-          
+
           // Navigate to discovery page with the results
           navigate('/discovery', { state: { discoveryItems: responseData.results } });
         } else {
@@ -152,7 +151,7 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
             title: "No Results",
             description: "No discovery items found. Showing default content.",
           });
-          
+
           // Navigate to discovery page without data (will show dummy data)
           navigate('/discovery');
         }
@@ -163,11 +162,8 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
       toast({
         variant: "destructive",
         title: "Forward Failed",
-        description: "Failed to forward conversation ID to API. Showing default content.",
+        description: "Failed to forward conversation ID to API.",
       });
-      
-      // Navigate to discovery page without data as fallback
-      navigate('/discovery');
     } finally {
       setIsForwarding(false);
     }

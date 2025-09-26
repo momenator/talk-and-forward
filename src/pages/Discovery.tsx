@@ -42,46 +42,6 @@ const Discovery = () => {
       category: "Community",
       reason: "Active discussions about cutting-edge AI research and development",
       image: "/placeholder.svg"
-    },
-    {
-      id: 2,
-      name: "Voice Tech Pioneers",
-      description: "Exploring the future of voice interfaces and conversational AI",
-      category: "Community",
-      reason: "Leading community for voice technology professionals",
-      image: "/placeholder.svg"
-    },
-    {
-      id: 3,
-      name: "Sarah Chen",
-      description: "AI Research Scientist at TechCorp specializing in Machine Learning and NLP",
-      category: "Expert",
-      reason: "Renowned expert in voice AI with 15K+ followers",
-      image: "/placeholder.svg"
-    },
-    {
-      id: 4,
-      name: "Marcus Rodriguez",
-      description: "Voice UX Designer creating intuitive conversational interfaces",
-      category: "Expert",
-      reason: "Leading voice UX designer with innovative design principles",
-      image: "/placeholder.svg"
-    },
-    {
-      id: 5,
-      name: "Voice AI Summit 2024",
-      description: "Premier conference for voice AI professionals and researchers",
-      category: "Event",
-      reason: "Largest gathering of voice AI experts with 500+ attendees",
-      image: "/placeholder.svg"
-    },
-    {
-      id: 6,
-      name: "Conversational AI Workshop",
-      description: "Hands-on workshop covering latest conversational AI techniques",
-      category: "Event",
-      reason: "Practical learning opportunity with industry leaders",
-      image: "/placeholder.svg"
     }
   ];
 
@@ -108,7 +68,9 @@ const Discovery = () => {
   const fetchEvents = async (groupName: string) => {
     setIsLoadingEvents(true);
     try {
-      const response = await fetch(`http://localhost:5555/events?name=${encodeURIComponent(groupName)}`);
+      const response = await fetch(`http://localhost:5555/events?groupName=${groupName}`, {
+          method: "GET",
+      });
       
       if (response.ok) {
         const data = await response.json();
