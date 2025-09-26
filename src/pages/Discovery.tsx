@@ -23,6 +23,7 @@ interface EventItem {
   datetime: string;
   location: string;
   description: string;
+  url?: string;
 }
 
 const Discovery = () => {
@@ -117,7 +118,8 @@ const Discovery = () => {
             event_name: event.event_name || "Unknown Event",
             datetime: event.datetime || "TBD", 
             location: event.location || "TBD",
-            description: event.description || "No description available"
+            description: event.description || "No description available",
+            url: event.url
           }));
           setEvents(formattedEvents);
         } else {
@@ -333,9 +335,18 @@ const Discovery = () => {
                                  </p>
                                )}
                              </div>
-                             <Button size="sm" variant="outline">
-                               View
-                             </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  if (event.url) {
+                                    window.open(event.url, '_blank');
+                                  }
+                                }}
+                                disabled={!event.url}
+                              >
+                                View
+                              </Button>
                            </div>
                          ))}
                        </div>
