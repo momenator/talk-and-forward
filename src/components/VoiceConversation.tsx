@@ -128,15 +128,8 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
     setIsForwarding(true);
     try {
       // Replace with your actual API endpoint
-      const response = await fetch("/api/forward-conversation", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          conversationId: conversationId,
-          timestamp: new Date().toISOString(),
-        }),
+      const response = await fetch(`/api/forward-conversation?conversationId=${conversationId}`, {
+        method: "GET",
       });
 
       if (response.ok) {
