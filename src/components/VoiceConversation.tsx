@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useConversation } from "@elevenlabs/react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +21,7 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isForwarding, setIsForwarding] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const conversation = useConversation({
     onConnect: () => {
@@ -127,16 +129,33 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
 
     setIsForwarding(true);
     try {
-      // Replace with your actual API endpoint
-      const response = await fetch(`/api/forward-conversation?conversationId=${conversationId}`, {
+      // Update this to your FastAPI server URL
+      const response = await fetch(`http://localhost:8000/api/forward-conversation?conversationId=${conversationId}`, {
         method: "GET",
       });
 
       if (response.ok) {
-        toast({
-          title: "Success",
-          description: "Conversation ID forwarded successfully.",
-        });
+        const responseData = await response.json();
+        console.log("API Response:", responseData);
+
+        // Check if response has the expected format: { results: [{ name, description, category, reason }] }
+        if (responseData && responseData.results && Array.isArray(responseData.results)) {
+          toast({
+            title: "Success",
+            description: "Results found! Redirecting to Discovery...",
+          });
+          
+          // Navigate to discovery page with the results
+          navigate('/discovery', { state: { discoveryItems: responseData.results } });
+        } else {
+          toast({
+            title: "No Results",
+            description: "No discovery items found. Showing default content.",
+          });
+          
+          // Navigate to discovery page without data (will show dummy data)
+          navigate('/discovery');
+        }
       } else {
         throw new Error("Failed to forward conversation ID");
       }
@@ -144,8 +163,11 @@ const VoiceConversation = ({ onConversationEnd }: VoiceConversationProps) => {
       toast({
         variant: "destructive",
         title: "Forward Failed",
-        description: "Failed to forward conversation ID to API.",
+        description: "Failed to forward conversation ID to API. Showing default content.",
       });
+      
+      // Navigate to discovery page without data as fallback
+      navigate('/discovery');
     } finally {
       setIsForwarding(false);
     }
