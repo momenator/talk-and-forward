@@ -276,7 +276,7 @@ const Discovery = () => {
                 
                 <div className="space-y-6">
                   <div className="space-y-4">
-                    <p className="text-white">{item.description}</p>
+                    <p className="text-foreground">{item.description}</p>
                     <p className="text-muted-foreground">{item.reason}</p>
                     <div className="flex items-center gap-2 mb-4">
                       <Badge variant="outline">{item.category}</Badge>
