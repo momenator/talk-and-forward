@@ -3,7 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Users, Calendar, MapPin, Star, MessageCircle, ArrowLeft } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Users, Calendar, MapPin, Star, MessageCircle, ArrowLeft, HelpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 
@@ -122,7 +123,26 @@ const Discovery = () => {
           {items.map((item) => (
             <Dialog key={item.id}>
               <DialogTrigger asChild>
-                <Card className="group hover:shadow-voice transition-all duration-300 border-2 border-voice-primary/20 hover:border-voice-primary/50 cursor-pointer overflow-hidden bg-card/80 backdrop-blur-sm shadow-glow/20">
+                <Card className="group hover:shadow-voice transition-all duration-300 border-2 border-voice-primary/20 hover:border-voice-primary/50 cursor-pointer overflow-hidden bg-card/80 backdrop-blur-sm shadow-glow/20 relative">
+                  {/* Star button in top-right corner */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 z-10 bg-card/80 backdrop-blur-sm hover:bg-card/90"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(item.id);
+                    }}
+                  >
+                    <Star 
+                      className={`h-4 w-4 ${
+                        favorites.includes(item.id) 
+                          ? 'fill-voice-accent text-voice-accent' 
+                          : 'text-muted-foreground hover:text-voice-accent'
+                      }`} 
+                    />
+                  </Button>
+
                   {/* Instagram-style half image at top */}
                   <div className="relative h-32 overflow-hidden bg-gradient-voice/20">
                     <div 
@@ -154,42 +174,35 @@ const Discovery = () => {
                           </Badge>
                         </div>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="flex-shrink-0"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleFavorite(item.id);
-                        }}
-                      >
-                        <Star 
-                          className={`h-5 w-5 ${
-                            favorites.includes(item.id) 
-                              ? 'fill-voice-accent text-voice-accent' 
-                              : 'text-muted-foreground hover:text-voice-accent'
-                          }`} 
-                        />
-                      </Button>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div 
+                              className="w-8 h-8 bg-gradient-voice/20 border-2 border-voice-primary/40 rounded-full flex items-center justify-center cursor-help hover:bg-gradient-voice/30 transition-colors"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <HelpCircle className="h-4 w-4 text-voice-primary" />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs p-3 bg-card border border-voice-primary/30 shadow-voice">
+                            <div className="flex items-start gap-2">
+                              <div className="w-1 h-4 bg-voice-primary rounded-full flex-shrink-0 mt-1" />
+                              <div>
+                                <p className="text-xs font-semibold text-voice-primary mb-1">Why This Matters</p>
+                                <p className="text-xs text-foreground/90 leading-relaxed">
+                                  {item.reason}
+                                </p>
+                              </div>
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                     
                     {/* Content */}
                     <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
                       {item.description}
                     </p>
-                    
-                    {/* Prominent reason section - Instagram caption style */}
-                    <div className="bg-gradient-voice/15 rounded-lg p-3 border-2 border-voice-primary/30 shadow-inner">
-                      <div className="flex items-start gap-2">
-                        <div className="w-1 h-6 bg-voice-primary rounded-full flex-shrink-0 mt-1" />
-                        <div>
-                          <p className="text-sm font-semibold text-voice-primary mb-1">Why This Matters</p>
-                          <p className="text-sm text-foreground/90 leading-relaxed">
-                            {item.reason}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
                   </CardContent>
                 </Card>
               </DialogTrigger>
