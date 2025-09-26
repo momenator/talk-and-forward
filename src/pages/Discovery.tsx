@@ -5,14 +5,25 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Users, Calendar, MapPin, Star, MessageCircle, ArrowLeft, HelpCircle } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+
+interface DiscoveryItem {
+  id?: number;
+  name: string;
+  description: string;
+  category: string;
+  reason: string;
+  image?: string;
+}
 
 const Discovery = () => {
   const [favorites, setFavorites] = useState<number[]>([]);
   const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [items, setItems] = useState<DiscoveryItem[]>([]);
+  const location = useLocation();
 
-  const items = [
+  const dummyItems = [
     {
       id: 1,
       name: "AI Innovators Hub",
@@ -62,6 +73,26 @@ const Discovery = () => {
       image: "/placeholder.svg"
     }
   ];
+
+  // Initialize items based on location state or use dummy data
+  useEffect(() => {
+    const discoveryItems = location.state?.discoveryItems;
+    if (discoveryItems && Array.isArray(discoveryItems)) {
+      // Map API data to our format, adding missing fields
+      const formattedItems = discoveryItems.map((item: any, index: number) => ({
+        id: item.id || index + 1,
+        name: item.name || "Unknown",
+        description: item.description || "No description available",
+        category: item.category || "Other", 
+        reason: item.reason || "No specific reason provided",
+        image: item.image || "/placeholder.svg"
+      }));
+      setItems(formattedItems);
+    } else {
+      // Use dummy data as fallback
+      setItems(dummyItems);
+    }
+  }, [location.state]);
 
   const nearbyEvents = [
     {
