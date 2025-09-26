@@ -228,7 +228,7 @@ const Discovery = () => {
                           </Badge>
                         </div>
                       </div>
-                      <TooltipProvider>
+                      <TooltipProvider delayDuration={0}>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div 
@@ -238,7 +238,14 @@ const Discovery = () => {
                               <HelpCircle className="h-4 w-4 text-voice-primary" />
                             </div>
                           </TooltipTrigger>
-                          <TooltipContent className="max-w-xs p-3 bg-card border border-voice-primary/30 shadow-voice">
+                          <TooltipContent 
+                            side="top" 
+                            align="end"
+                            sideOffset={8}
+                            className="max-w-xs p-3 bg-card border border-voice-primary/30 shadow-voice z-50"
+                            avoidCollisions={true}
+                            sticky="always"
+                          >
                             <div className="flex items-start gap-2">
                               <div className="w-1 h-4 bg-voice-primary rounded-full flex-shrink-0 mt-1" />
                               <div>
