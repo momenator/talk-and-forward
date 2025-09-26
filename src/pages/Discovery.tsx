@@ -122,54 +122,71 @@ const Discovery = () => {
           {items.map((item) => (
             <Dialog key={item.id}>
               <DialogTrigger asChild>
-                <Card className="group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-voice-primary/30 cursor-pointer h-full">
-                  <CardContent className="p-6 h-full flex flex-col">
-                    <div className="flex items-start gap-4 flex-1">
-                      <Avatar className="h-16 w-16 flex-shrink-0">
-                        <AvatarImage src={item.image} alt={item.name} />
-                        <AvatarFallback className="bg-gradient-voice text-white text-lg">
-                          {item.name.split(' ').map(word => word[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      
-                      <div className="flex-1 min-w-0 flex flex-col justify-between h-full">
+                <Card className="group hover:shadow-voice transition-all duration-300 border-2 border-voice-primary/20 hover:border-voice-primary/50 cursor-pointer overflow-hidden bg-card/80 backdrop-blur-sm shadow-glow/20">
+                  {/* Instagram-style half image at top */}
+                  <div className="relative h-32 overflow-hidden bg-gradient-voice/20">
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center opacity-60 group-hover:opacity-80 transition-opacity duration-300"
+                      style={{
+                        backgroundImage: `url(${item.image})`,
+                        backgroundPosition: 'center 30%'
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-card/60" />
+                  </div>
+                  
+                  <CardContent className="p-4">
+                    {/* Instagram-style profile header */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10 border-2 border-voice-primary/30">
+                          <AvatarImage src={item.image} alt={item.name} />
+                          <AvatarFallback className="bg-gradient-voice text-white text-sm">
+                            {item.name.split(' ').map(word => word[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
                         <div>
-                          <div className="flex items-start justify-between mb-2">
-                            <h3 className="font-semibold text-lg group-hover:text-voice-primary transition-colors line-clamp-1">
-                              {item.name}
-                            </h3>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="flex-shrink-0 ml-2"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleFavorite(item.id);
-                              }}
-                            >
-                              <Star 
-                                className={`h-4 w-4 ${
-                                  favorites.includes(item.id) 
-                                    ? 'fill-voice-accent text-voice-accent' 
-                                    : 'text-muted-foreground hover:text-voice-accent'
-                                }`} 
-                              />
-                            </Button>
-                          </div>
-                          <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
-                            {item.description}
-                          </p>
-                          <Badge variant="outline" className="text-xs mb-2">
+                          <h3 className="font-semibold text-base group-hover:text-voice-primary transition-colors line-clamp-1">
+                            {item.name}
+                          </h3>
+                          <Badge variant="outline" className="text-xs mt-1 border-voice-primary/30 text-voice-primary">
                             {item.category}
                           </Badge>
                         </div>
-                        
-                        <div className="mt-auto pt-3 border-t border-border/50">
-                          <div className="bg-gradient-voice/10 rounded-lg p-3 border border-voice-primary/20">
-                            <p className="text-sm font-medium text-voice-primary leading-relaxed">
-                              {item.reason}
-                            </p>
-                          </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="flex-shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(item.id);
+                        }}
+                      >
+                        <Star 
+                          className={`h-5 w-5 ${
+                            favorites.includes(item.id) 
+                              ? 'fill-voice-accent text-voice-accent' 
+                              : 'text-muted-foreground hover:text-voice-accent'
+                          }`} 
+                        />
+                      </Button>
+                    </div>
+                    
+                    {/* Content */}
+                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                      {item.description}
+                    </p>
+                    
+                    {/* Prominent reason section - Instagram caption style */}
+                    <div className="bg-gradient-voice/15 rounded-lg p-3 border-2 border-voice-primary/30 shadow-inner">
+                      <div className="flex items-start gap-2">
+                        <div className="w-1 h-6 bg-voice-primary rounded-full flex-shrink-0 mt-1" />
+                        <div>
+                          <p className="text-sm font-semibold text-voice-primary mb-1">Why This Matters</p>
+                          <p className="text-sm text-foreground/90 leading-relaxed">
+                            {item.reason}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -197,14 +214,19 @@ const Discovery = () => {
                       <Badge variant="outline">{item.category}</Badge>
                     </div>
                     
-                    <div className="bg-gradient-voice/10 rounded-lg p-4 border border-voice-primary/20">
-                      <h4 className="font-semibold text-voice-primary mb-2 flex items-center gap-2">
-                        <MessageCircle className="h-4 w-4" />
-                        Why This Matters
-                      </h4>
-                      <p className="text-sm leading-relaxed">
-                        {item.reason}
-                      </p>
+                    <div className="bg-gradient-voice/15 rounded-lg p-4 border-2 border-voice-primary/30 shadow-inner">
+                      <div className="flex items-start gap-3">
+                        <div className="w-1.5 h-8 bg-voice-primary rounded-full flex-shrink-0 mt-1" />
+                        <div>
+                          <h4 className="font-bold text-voice-primary mb-3 flex items-center gap-2 text-lg">
+                            <MessageCircle className="h-5 w-5" />
+                            Why This Matters
+                          </h4>
+                          <p className="text-base leading-relaxed font-medium text-foreground/90">
+                            {item.reason}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                   
