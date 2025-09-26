@@ -177,7 +177,7 @@ const Discovery = () => {
               }
             }}>
               <DialogTrigger asChild>
-                <Card className="group hover:shadow-voice transition-all duration-300 border-2 border-voice-primary/20 hover:border-voice-primary/50 cursor-pointer overflow-hidden bg-card/80 backdrop-blur-sm shadow-glow/20 relative">
+                <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden bg-card/80 backdrop-blur-sm shadow-sm hover:shadow-xl relative">
                   {/* Star button in top-right corner */}
                   <Button
                     variant="ghost"
