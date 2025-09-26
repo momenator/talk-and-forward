@@ -1,104 +1,98 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Users, Calendar, MapPin, Star, MessageCircle, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 const Discovery = () => {
-  const communities = [
+  const [favorites, setFavorites] = useState<number[]>([]);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+
+  const items = [
     {
       id: 1,
       name: "AI Innovators Hub",
       description: "A community of AI enthusiasts pushing the boundaries of technology",
-      members: 2500,
-      category: "Technology",
-      image: "/placeholder.svg",
-      trending: true
+      category: "Community",
+      reason: "Active discussions about cutting-edge AI research and development",
+      image: "/placeholder.svg"
     },
     {
       id: 2,
       name: "Voice Tech Pioneers",
       description: "Exploring the future of voice interfaces and conversational AI",
-      members: 1200,
-      category: "Voice Technology",
-      image: "/placeholder.svg",
-      trending: false
+      category: "Community",
+      reason: "Leading community for voice technology professionals",
+      image: "/placeholder.svg"
     },
     {
       id: 3,
-      name: "Digital Creators Collective",
-      description: "Where creativity meets technology in the digital age",
-      members: 3800,
-      category: "Creative",
-      image: "/placeholder.svg",
-      trending: true
-    }
-  ];
-
-  const people = [
-    {
-      id: 1,
       name: "Sarah Chen",
-      title: "AI Research Scientist",
-      company: "TechCorp",
-      expertise: ["Machine Learning", "NLP", "Voice AI"],
-      followers: 15200,
+      description: "AI Research Scientist at TechCorp specializing in Machine Learning and NLP",
+      category: "Expert",
+      reason: "Renowned expert in voice AI with 15K+ followers",
       image: "/placeholder.svg"
     },
     {
-      id: 2,
+      id: 4,
       name: "Marcus Rodriguez",
-      title: "Voice UX Designer",
-      company: "VoiceFlow",
-      expertise: ["Voice Design", "UX", "Conversational AI"],
-      followers: 8900,
+      description: "Voice UX Designer creating intuitive conversational interfaces",
+      category: "Expert",
+      reason: "Leading voice UX designer with innovative design principles",
       image: "/placeholder.svg"
     },
     {
-      id: 3,
-      name: "Dr. Elena Vasquez",
-      title: "AI Ethics Researcher",
-      company: "AI Institute",
-      expertise: ["AI Ethics", "Policy", "Research"],
-      followers: 12400,
+      id: 5,
+      name: "Voice AI Summit 2024",
+      description: "Premier conference for voice AI professionals and researchers",
+      category: "Event",
+      reason: "Largest gathering of voice AI experts with 500+ attendees",
+      image: "/placeholder.svg"
+    },
+    {
+      id: 6,
+      name: "Conversational AI Workshop",
+      description: "Hands-on workshop covering latest conversational AI techniques",
+      category: "Event",
+      reason: "Practical learning opportunity with industry leaders",
       image: "/placeholder.svg"
     }
   ];
 
-  const events = [
+  const nearbyEvents = [
     {
       id: 1,
-      title: "Voice AI Summit 2024",
-      date: "March 15, 2024",
-      time: "9:00 AM PST",
+      title: "Voice AI Meetup",
+      date: "Apr 5, 2024",
       location: "San Francisco, CA",
-      attendees: 500,
-      type: "Conference",
-      virtual: false
+      attendees: 80
     },
     {
       id: 2,
-      title: "Conversational AI Workshop",
-      date: "March 22, 2024",
-      time: "2:00 PM EST",
+      title: "AI Ethics Panel",
+      date: "Apr 12, 2024",
       location: "Virtual",
-      attendees: 150,
-      type: "Workshop",
-      virtual: true
+      attendees: 200
     },
     {
       id: 3,
-      title: "AI Community Meetup",
-      date: "March 28, 2024",
-      time: "6:00 PM PST",
+      title: "Tech Innovation Conference",
+      date: "Apr 18, 2024",
       location: "New York, NY",
-      attendees: 80,
-      type: "Meetup",
-      virtual: false
+      attendees: 350
     }
   ];
+
+  const toggleFavorite = (itemId: number) => {
+    setFavorites(prev => 
+      prev.includes(itemId) 
+        ? prev.filter(id => id !== itemId)
+        : [...prev, itemId]
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -124,152 +118,122 @@ const Discovery = () => {
       </header>
 
       <main className="container mx-auto px-6 py-8">
-        <Tabs defaultValue="communities" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
-            <TabsTrigger value="communities" className="gap-2">
-              <Users className="h-4 w-4" />
-              Communities
-            </TabsTrigger>
-            <TabsTrigger value="people" className="gap-2">
-              <MessageCircle className="h-4 w-4" />
-              People
-            </TabsTrigger>
-            <TabsTrigger value="events" className="gap-2">
-              <Calendar className="h-4 w-4" />
-              Events
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="communities" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {communities.map((community) => (
-                <Card key={community.id} className="group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-[hsl(var(--voice-primary))]/30">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src={community.image} alt={community.name} />
+        <div className="space-y-4">
+          {items.map((item) => (
+            <Dialog key={item.id}>
+              <DialogTrigger asChild>
+                <Card className="group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-[hsl(var(--voice-primary))]/30 cursor-pointer">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      <Avatar className="h-12 w-12 flex-shrink-0">
+                        <AvatarImage src={item.image} alt={item.name} />
                         <AvatarFallback className="bg-gradient-to-br from-[hsl(var(--voice-primary))] to-[hsl(var(--voice-secondary))] text-white">
-                          {community.name.split(' ').map(word => word[0]).join('')}
+                          {item.name.split(' ').map(word => word[0]).join('')}
                         </AvatarFallback>
                       </Avatar>
-                      {community.trending && (
-                        <Badge variant="secondary" className="bg-[hsl(var(--voice-accent))]/10 text-[hsl(var(--voice-accent))] border-[hsl(var(--voice-accent))]/20">
-                          <Star className="h-3 w-3 mr-1" />
-                          Trending
-                        </Badge>
-                      )}
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg group-hover:text-[hsl(var(--voice-primary))] transition-colors">
+                              {item.name}
+                            </h3>
+                            <p className="text-muted-foreground text-sm mt-1 line-clamp-2">
+                              {item.description}
+                            </p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <Badge variant="outline" className="text-xs">
+                                {item.category}
+                              </Badge>
+                              <span className="text-xs text-muted-foreground">
+                                {item.reason}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="flex-shrink-0 ml-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleFavorite(item.id);
+                            }}
+                          >
+                            <Star 
+                              className={`h-4 w-4 ${
+                                favorites.includes(item.id) 
+                                  ? 'fill-[hsl(var(--voice-accent))] text-[hsl(var(--voice-accent))]' 
+                                  : 'text-muted-foreground hover:text-[hsl(var(--voice-accent))]'
+                              }`} 
+                            />
+                          </Button>
+                        </div>
+                      </div>
                     </div>
-                    <CardTitle className="text-lg group-hover:text-[hsl(var(--voice-primary))] transition-colors">
-                      {community.name}
-                    </CardTitle>
-                    <CardDescription>{community.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between mb-4">
-                      <Badge variant="outline" className="text-xs">
-                        {community.category}
-                      </Badge>
-                      <span className="text-sm text-muted-foreground flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        {community.members.toLocaleString()} members
-                      </span>
-                    </div>
-                    <Button className="w-full bg-gradient-to-r from-[hsl(var(--voice-primary))] to-[hsl(var(--voice-secondary))] hover:opacity-90">
-                      Join Community
-                    </Button>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="people" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {people.map((person) => (
-                <Card key={person.id} className="group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-[hsl(var(--voice-primary))]/30">
-                  <CardHeader className="text-center">
-                    <Avatar className="h-20 w-20 mx-auto mb-4">
-                      <AvatarImage src={person.image} alt={person.name} />
-                      <AvatarFallback className="bg-gradient-to-br from-[hsl(var(--voice-primary))] to-[hsl(var(--voice-secondary))] text-white text-lg">
-                        {person.name.split(' ').map(name => name[0]).join('')}
+              </DialogTrigger>
+              
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={item.image} alt={item.name} />
+                      <AvatarFallback className="bg-gradient-to-br from-[hsl(var(--voice-primary))] to-[hsl(var(--voice-secondary))] text-white">
+                        {item.name.split(' ').map(word => word[0]).join('')}
                       </AvatarFallback>
                     </Avatar>
-                    <CardTitle className="text-lg group-hover:text-[hsl(var(--voice-primary))] transition-colors">
-                      {person.name}
-                    </CardTitle>
-                    <CardDescription>
-                      {person.title} at {person.company}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex flex-wrap gap-1">
-                        {person.expertise.map((skill) => (
-                          <Badge key={skill} variant="secondary" className="text-xs">
-                            {skill}
-                          </Badge>
-                        ))}
-                      </div>
-                      <div className="text-sm text-muted-foreground text-center">
-                        {person.followers.toLocaleString()} followers
-                      </div>
-                      <Button variant="outline" className="w-full hover:bg-[hsl(var(--voice-primary))]/10 hover:border-[hsl(var(--voice-primary))]/30">
-                        Connect
-                      </Button>
+                    {item.name}
+                  </DialogTitle>
+                </DialogHeader>
+                
+                <div className="space-y-6">
+                  <div>
+                    <p className="text-muted-foreground mb-3">{item.description}</p>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{item.category}</Badge>
+                      <span className="text-sm text-muted-foreground">• {item.reason}</span>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="events" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {events.map((event) => (
-                <Card key={event.id} className="group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-[hsl(var(--voice-primary))]/30">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <Badge 
-                        variant={event.type === 'Conference' ? 'default' : event.type === 'Workshop' ? 'secondary' : 'outline'}
-                        className={event.type === 'Conference' ? 'bg-[hsl(var(--voice-primary))] hover:bg-[hsl(var(--voice-primary))]/90' : ''}
-                      >
-                        {event.type}
-                      </Badge>
-                      {event.virtual && (
-                        <Badge variant="outline" className="text-[hsl(var(--voice-accent))] border-[hsl(var(--voice-accent))]/30">
-                          Virtual
-                        </Badge>
-                      )}
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-semibold mb-3 flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      Nearby Events
+                    </h4>
+                    <div className="space-y-3">
+                      {nearbyEvents.map((event) => (
+                        <div key={event.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
+                          <div>
+                            <h5 className="font-medium text-sm">{event.title}</h5>
+                            <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                {event.date}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <MapPin className="h-3 w-3" />
+                                {event.location}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Users className="h-3 w-3" />
+                                {event.attendees}
+                              </span>
+                            </div>
+                          </div>
+                          <Button size="sm" variant="outline">
+                            View
+                          </Button>
+                        </div>
+                      ))}
                     </div>
-                    <CardTitle className="text-lg group-hover:text-[hsl(var(--voice-primary))] transition-colors">
-                      {event.title}
-                    </CardTitle>
-                    <CardDescription className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm">
-                        <Calendar className="h-4 w-4" />
-                        {event.date} at {event.time}
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <MapPin className="h-4 w-4" />
-                        {event.location}
-                      </div>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-sm text-muted-foreground">
-                        {event.attendees} attendees
-                      </span>
-                    </div>
-                    <Button className="w-full bg-gradient-to-r from-[hsl(var(--voice-primary))] to-[hsl(var(--voice-secondary))] hover:opacity-90">
-                      Register Now
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          ))}
+        </div>
       </main>
     </div>
   );
